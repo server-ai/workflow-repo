@@ -24,12 +24,7 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      # Step 4: Run tests
+      # Step 3: Run tests
       - name: Run tests
         run: |
           pytest
