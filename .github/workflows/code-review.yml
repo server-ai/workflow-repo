@@ -1,4 +1,4 @@
-name: Automated Code Review with AWS Bedrock
+name: Automated Code Review and Correction with AWS Bedrock
 
 on:
   push:
@@ -25,14 +25,14 @@ jobs:
         run: |
           pip install boto3
 
-      # Step 4: Run code review with AWS Bedrock
-      - name: Review code using AWS Bedrock
+      # Step 4: Review and correct code using AWS Bedrock
+      - name: Review and Correct Code
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1  # Fixed, region should be a plain string
+          AWS_REGION: us-east-1
         run: |
-          python src/handlers/EventHandler.py
+          python src/handlers/bedrock_code_review.py  # This will handle code analysis and corrections
 
       # Step 5: Commit and push corrections back to the repo
       - name: Commit and push changes
@@ -42,4 +42,5 @@ jobs:
           git add .
           git commit -m "Automated code corrections by AWS Bedrock"
           git push
+
 
