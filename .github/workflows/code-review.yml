@@ -32,7 +32,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1  # Fixed, region should be a plain string
         run: |
-          python review_code.py
+          python src/handlers/EventHandler.py
 
       # Step 5: Commit and push corrections back to the repo
       - name: Commit and push changes
