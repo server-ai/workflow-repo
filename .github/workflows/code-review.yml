@@ -32,7 +32,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
         run: |
-          python src/handlers/EventHandler.py  # Use the correct path to your script
+          python scripts/bedrock_code_review.py  # Use the correct path to your script
 
       # Step 5: Commit and push corrections back to the repo
       - name: Commit and push changes
