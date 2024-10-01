@@ -1,27 +1,24 @@
 import boto3
-import logging
 import json
+import logging
+from botocore.exceptions import ClientError
 
-# Initialize logging
-logging.basicConfig(level=logging.INFO)
-
-# Constants for AWS Bedrock
-MODEL_ID = "meta-llama-3"  # Assuming this is the correct model ID, check AWS documentation
-BEDROCK_ENDPOINT = "bedrock.us-east-1.amazonaws.com"  # Adjust this according to your AWS region
+# Set the correct model ID for Llama 3.
+MODEL_ID = "meta.llama3-70b-instruct-v1:0"  # Ensure this is the correct model ID
+REGION = "us-west-2"  # Specify the correct region
 
 def analyze_and_correct_code():
     try:
-        # Load the code from the file
+        # Read the code from the file
+        logging.info("Original code loaded for review.")
         with open('src/handlers/EventHandler.py', 'r') as file:
             code = file.read()
-        
-        logging.info("Original code loaded for review.")
-        
-        # Get the corrected code using Llama 3
+
+        # Correct the code with Llama 3 via Bedrock
         corrected_code = correct_code_with_llama3(code)
-        
-        if corrected_code:
-            # Write the corrected code back to the file
+
+        if corrected_code and corrected_code != code:
+            # Write the corrected code to the same file
             with open('src/handlers/EventHandler.py', 'w') as file:
                 file.write(corrected_code)
             logging.info("Corrected code written back to the file.")
@@ -33,40 +30,44 @@ def analyze_and_correct_code():
         exit(1)
 
 def correct_code_with_llama3(code):
+    # Create a Bedrock Runtime client
+    client = boto3.client("bedrock-runtime", region_name=REGION)
+
+    # Prepare the prompt for Llama 3
+    logging.info("Sending code to Llama 3 for analysis.")
+    prompt = f"Review the following Python code for errors and provide corrections:\n\n{code}\n\nProvide the corrected code below:\n"
+    
+    # Format the request payload
+    formatted_prompt = f"""
+    <|begin_of_text|><|start_header_id|>user<|end_header_id|>
+    {prompt}
+    <|eot_id|>
+    <|start_header_id|>assistant<|end_header_id|>
+    """
+
+    native_request = {
+        "prompt": formatted_prompt,
+        "max_gen_len": 512,
+        "temperature": 0.5,
+    }
+
+    # Send the request to Llama 3
     try:
-        # Initialize the Bedrock client
-        client = boto3.client('bedrock-runtime', region_name='us-east-1')
-        
-        # Define the input for Llama 3 model
-        input_payload = {
-            "inputText": code
-        }
-        
-        logging.info("Sending code to Llama 3 for analysis.")
-        
-        # Call the Llama 3 model via Bedrock
-        response = client.invoke_model(
-            modelId=MODEL_ID,
-            contentType='application/json',
-            body=json.dumps(input_payload)
-        )
-        
-        # Extract the corrected code from the response
-        result = json.loads(response['body'])
-        corrected_code = result.get('results', [{}])[0].get('outputText', '')
-        
-        if corrected_code:
-            logging.info("Received corrected code from Llama 3.")
-        else:
-            logging.warning("No corrections were suggested by Llama 3.")
-        
+        request = json.dumps(native_request)
+        response = client.invoke_model(modelId=MODEL_ID, body=request)
+        model_response = json.loads(response["body"].read())
+
+        # Extract the generated corrected code from the response
+        corrected_code = model_response["generation"]
+        logging.info("Received corrected code from Llama 3.")
         return corrected_code
 
-    except Exception as e:
-        logging.error(f"Failed to retrieve corrected code from Llama 3: {str(e)}")
+    except (ClientError, Exception) as e:
+        logging.error(f"Failed to retrieve corrected code from Llama 3: {e}")
         return None
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     analyze_and_correct_code()
 
 
