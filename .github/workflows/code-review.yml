@@ -26,13 +26,13 @@ jobs:
           pip install boto3
 
       # Step 4: Run code review and correction script
-      - name: Review code using AWS Bedrock (Llama 3)
+      - name: Review code using AWS Bedrock
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+          AWS_REGION: us-west-2  # Make sure region matches
         run: |
-          python scripts/bedrock_code_review.py  # Run the script
+          python scripts/bedrock_code_review.py  # Correct script path
 
       # Step 5: Commit and push corrections back to the repo
       - name: Commit and push changes
@@ -41,9 +41,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Automated code corrections by AWS Bedrock" || echo "No changes to commit"
-          git push origin main  # Push changes to the default branch
+          git push origin main  # Push the changes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the GITHUB_TOKEN for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
           
