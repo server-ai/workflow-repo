@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 # Set the correct model ID for Llama 3.
 MODEL_ID = "meta.llama3-70b-instruct-v1:0"  # Ensure this is the correct model ID
-REGION = "us-west-2"  # Specify the correct region
+REGION = "us-east-1"  # Specify the correct region
 
 def analyze_and_correct_code():
     try:
