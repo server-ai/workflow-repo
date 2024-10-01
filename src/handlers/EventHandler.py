@@ -37,4 +37,4 @@ def average(numbers):
 # Function that attempts to read a file without opening it
 def read_file(file_path):
     file_data = file.read()  # Missing 'open' and context manager for 'file'
-    return file_data
+    return file_data)
