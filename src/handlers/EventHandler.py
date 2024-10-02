@@ -1,34 +1,35 @@
- Here is the corrected Python code:
-
-```python
 # example.py
+
+import boto3
+import json
+import logging
+from botocore.exceptions import ClientError
 
 # Function to greet a user
 def greet(name):
-    print("Hello, " + name + "! ")
+    print("Hello, " + name + "!")
 
-# Function to add three numbers
-def addfalcon(a, b, c):
-    return a + b + c
+# Function with a syntax error and logic error
+def addfalcon(a, c, d):
+    return a + b  # Undefined variable 'b'
 
-# Function to multiply a number by 2
+# Function to multiply a number by 2, with incorrect indentation
 def multiply_by_two(x):
     result = x * 2
-    print("The result is:", result)
+    print("The result is:", result)  # Misaligned indentation
 
-# Function to divide two numbers, handling division by zero
+# Function to divide two numbers, but it doesn't handle division by zero
 def divide(a, b):
-    if b == 0:
-        return "Error: Division by zero is not allowed"
-    else:
-        return a / b
+    return a / b
 
-# Function to capitalize words in a list
+# Function to capitalize words in a list but missing a return statement
 def capitalize_words(words):
-    capitalized = [word.capitalize() for word in words]
-    return capitalized
+    capitalized = []
+    for word in words:
+        capitalized.append(word.capitalize())
+    # Missing return statement
 
-# A class definition with consistent indentation and logic error fixed
+# A class definition with inconsistent indentation and logic error
 class Falcon:
     def __init__(self, name):
         self.name = name
@@ -36,36 +37,50 @@ class Falcon:
     def fly(self, speed):
         if speed > 0:
             print(f"{self.name} is flying at {speed} km/h!")
-            return True
         else:
-            print(f"{self.name} cannot fly at a negative speed.")
-            return False
+            print(f"{self.name} cannot fly at a negative speed.")  # Missing return or else condition handling
 
 # Example of using the above functions
 greet("Falcon")
-result = addfalcon(2, 3, 4)
+result = addfalcon(2, 3, 4)  # Will throw an error due to undefined 'b'
 print(result)
 
 numbers = [2, 4, 6]
-multiply_by_two(numbers[0])
+multiply_by_two(numbers[0])  # Correct call, but will print incorrectly due to indentation
 
-# Example that will handle division by zero error
-print(divide(10, 0))
+# Example that will throw division by zero error
+divide(10, 0)
 
 words = ["falcon", "eagle", "hawk"]
-print(capitalize_words(words))
+capitalize_words(words)  # Will run, but nothing will be returned
 
-falcon = Falcon("Falcon")
-print(falcon.fly(10))  # Should print "Falcon is flying at 10 km/h!"
-print(falcon.fly(-5))  # Should print "Falcon cannot fly at a negative speed."
-```
+# Function to interact with Llama 3 via Bedrock
+def invoke_llama3_model(code):
+    client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
-I made the following changes:
+    model_id = "meta.llama3-70b-instruct-v1:0"
+    prompt = f"Analyze and correct the following code:\n{code}"
 
-1. Removed the extra colon at the end of the `addfalcon` function definition.
-2. Added `b` to the return statement in the `addfalcon` function.
-3. Fixed the indentation of the `print` statement in the `multiply_by_two` function.
-4. Added error handling to the `divide` function to prevent division by zero.
-5. Simplified the `capitalize_words` function using a list comprehension.
-6. Fixed the indentation and logic errors in the `Falcon` class definition.
-7.
+    formatted_prompt = f"""
+    <|begin_of_text|><|start_header_id|>user<|end_header_id|>
+    {prompt}
+    <|eot_id|>
+    <|start_header_id|>assistant<|end_header_id|>
+    """
+
+    native_request = {
+        "prompt": formatted_prompt,
+        "max_gen_len": 1024,
+        "temperature": 0.5,
+    }
+
+    request = json.dumps(native_request)
+
+    try:
+        response = client.invoke_model(modelId=model_id, body=request)
+        logging.info("Model invoked successfully.")
+        model_response = json.loads(response["body"].read())
+        return model_response.get("generation", "No correction found.")
+    except (ClientError, Exception) as e:
+        logging.error(f"Failed to retrieve corrected code from Llama 3: {str(e)}")
+        return None
