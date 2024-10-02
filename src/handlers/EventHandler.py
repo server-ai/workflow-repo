@@ -25,9 +25,7 @@ def divide(a, b):
 
 # Function to capitalize words in a list
 def capitalize_words(words):
-    capitalized = []
-    for word in words:
-        capitalized.append(word.capitalize())
+    capitalized = [word.capitalize() for word in words]
     return capitalized
 
 # A class definition with consistent indentation and logic error fixed
@@ -56,15 +54,18 @@ print(divide(10, 0))
 
 words = ["falcon", "eagle", "hawk"]
 print(capitalize_words(words))
+
+falcon = Falcon("Falcon")
+print(falcon.fly(10))  # Should print "Falcon is flying at 10 km/h!"
+print(falcon.fly(-5))  # Should print "Falcon cannot fly at a negative speed."
 ```
 
-Changes made:
+I made the following changes:
 
-1. Fixed syntax error in `addfalcon` function by removing extra colon at the end of the function definition.
-2. Fixed logic error in `addfalcon` function by adding `b` to the return statement.
-3. Fixed indentation error in `multiply_by_two` function by aligning the `print` statement.
-4. Added error handling to `divide` function to prevent division by zero.
-5. Added a `return` statement to `capitalize_words` function.
-6. Fixed indentation and logic errors in `Falcon` class definition.
-7. Fixed the `fly` method in `Falcon` class to return a boolean value indicating whether the falcon can fly or not.
-8. Updated the example usage to reflect the corrected functions.
+1. Removed the extra colon at the end of the `addfalcon` function definition.
+2. Added `b` to the return statement in the `addfalcon` function.
+3. Fixed the indentation of the `print` statement in the `multiply_by_two` function.
+4. Added error handling to the `divide` function to prevent division by zero.
+5. Simplified the `capitalize_words` function using a list comprehension.
+6. Fixed the indentation and logic errors in the `Falcon` class definition.
+7.
