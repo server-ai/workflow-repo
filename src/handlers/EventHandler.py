@@ -37,7 +37,7 @@ class Falcon:
 
 # Example of using the above functions
 greet("Falcon")
-result = addfalcon(2, 3, 4
+result = addfalcon(2, 3, 4)
 print(result)
 
 numbers = [2, 4, 6]
